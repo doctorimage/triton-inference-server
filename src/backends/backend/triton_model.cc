@@ -288,7 +288,7 @@ TRITONBACKEND_RequestInput(
   // The request inputs are not allowed to change once the request
   // makes it to the backend, so it is ok to just iterate through the
   // map. This linear search is the best we can do given the need for
-  // the inputs to be in the map and given the typical small number of
+  // the inputs to be in a map and given the typical small number of
   // inputs is better than having every request maintain the inputs as
   // both map and vector.
   uint32_t cnt = 0;
@@ -299,6 +299,27 @@ TRITONBACKEND_RequestInput(
       break;
     }
   }
+
+  return nullptr;  // success
+}
+
+TRITONSERVER_Error*
+TRITONBACKEND_RequestInputByName(
+    TRITONBACKEND_Request* request, const char* name,
+    TRITONBACKEND_Input** input)
+{
+  InferenceRequest* tr = reinterpret_cast<InferenceRequest*>(request);
+  const auto& inputs = tr->ImmutableInputs();
+  const auto& itr = inputs.find(name);
+  if (itr == inputs.end()) {
+    *input = nullptr;
+    return TRITONSERVER_ErrorNew(
+        TRITONSERVER_ERROR_INVALID_ARG,
+        (std::string("unknown request input name ") + name).c_str());
+  }
+
+  InferenceRequest::Input* in = itr->second;
+  *input = reinterpret_cast<TRITONBACKEND_Input*>(in);
 
   return nullptr;  // success
 }

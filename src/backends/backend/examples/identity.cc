@@ -294,8 +294,8 @@ TRITONBACKEND_ModelInitialize(TRITONBACKEND_Model* model)
       TRITONSERVER_LOG_INFO, __FILE__, __LINE__,
       (std::string("backend state is '") + *backend_state + "'").c_str());
 
-  // With each model we create a Model object and associate it with
-  // the TRITONBACKEND_Model.
+  // With each model we create a ModelState object and associate it
+  // with the TRITONBACKEND_Model.
   ModelState* model_state;
   RETURN_IF_ERROR(ModelState::Create(model, &model_state));
   RETURN_IF_ERROR(
@@ -339,10 +339,13 @@ TRITONBACKEND_ModelExecute(
     TRITONBACKEND_Model* model, TRITONBACKEND_Request** requests,
     const uint32_t request_count)
 {
+  const char* model_name;
+  RETURN_IF_ERROR(TRITONBACKEND_ModelName(model, &model_name));
+
   TRITONSERVER_LogMessage(
       TRITONSERVER_LOG_INFO, __FILE__, __LINE__,
-      (std::string("TRITONBACKEND_ModelExecute: ") +
-       std::to_string(request_count) + " requests")
+      (std::string("TRITONBACKEND_ModelExecute: model ") + model_name +
+       " with " + std::to_string(request_count) + " requests")
           .c_str());
 
   // Triton only calls model execute from a single thread at a time

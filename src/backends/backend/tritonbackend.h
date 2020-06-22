@@ -186,6 +186,19 @@ TRITONBACKEND_EXPORT TRITONSERVER_Error* TRITONBACKEND_RequestInput(
     TRITONBACKEND_Request* request, const uint32_t index,
     TRITONBACKEND_Input** input);
 
+/// Get a named request input tensor. The lifetime of the returned
+/// input tensor object matches that of the request and so the input
+/// tensor object should not be accessed after the request object is
+/// released.
+///
+/// \param request The inference request.
+/// \param name The name of the input tensor.
+/// \param input Returns the input tensor corresponding to the name.
+/// \return a TRITONSERVER_Error indicating success or failure.
+TRITONBACKEND_EXPORT TRITONSERVER_Error* TRITONBACKEND_RequestInputByName(
+    TRITONBACKEND_Request* request, const char* name,
+    TRITONBACKEND_Input** input);
+
 /// Get the number of output tensors requested to be returned in the
 /// request.
 ///
